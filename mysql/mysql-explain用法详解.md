@@ -1,4 +1,4 @@
-# MySQL优化---EXPAIN
+# MySQL优化---EXPAIN（mysq版本5.6）
 
 ​	Explain命令的作用是展示MySQL是如何执行sql语句的，SELECT, DELETE, INSERT, REPLACE,  UPDATE 语句都可以使用Explain命令。
 
@@ -30,7 +30,7 @@
    如下sql：
 
    ```sql
-    EXPLAIN SELECT *FROM(SELECT 2 FROM dual UNION ALL SELECT 3 FROM dual)t
+    EXPLAIN SELECT *FROM(SELECT 2 UNION ALL SELECT 3 )t;
    ```
 
    执行结果：
@@ -65,9 +65,118 @@
 
 4. partitions
 
+   查询将从其中匹配记录的分区。此列仅在使用partition关键字时显示。对于非分区表，值为null。
+
 5. type
 
-   join类型，本列展示了表是如何join的。下面是可能的值类型，按照顺序由最好到最坏。
+   join类型，本列展示了表是如何join的。下面是可能的值类型，排序规则为最好到最坏。
 
    * system
-   * ​
+
+     该表只有一行。这是下面`const`类型的一种特例。
+
+   * const
+
+     该表最多只有一行匹配，在查询开始时就会被读取。因为只有一行，所以这一行中列的值可以被优化器的其他部分视为常量。`const`表非常快，因为它们只需要读一次。
+
+     当把一个表的主键或唯一索引和一个常量值作比较时，`const`就会被使用。下面的语句中，t1就可以被作为一个`const`表。
+
+     ```sql
+     SELECT * FROM  t1 WHERE id=1;
+     SELECT * FROM  t2 WHERE unique_index_part1=1 and unique_index_part1=2;
+     ```
+
+   * eq_ref
+
+     在与前表的每个行组合中，从该表中读取一行。除了`system`和`const`类型，这个是最好的join类型。当一个join使用了主键或一个非空唯一索引的全部部分时，join类型就为`eq_ref`。
+
+     `eq_ref`可用于使用`=`运算符进行比较的索引列。比较值可以是一个常量，也可以是一个表达式，它使用在这个表之前读取的表中的列。
+
+     ```sql
+     SELECT * FROM ref_table,other_table
+       WHERE ref_table.key_column=other_table.column;
+
+     SELECT * FROM ref_table,other_table
+       WHERE ref_table.key_column_part1=other_table.column
+       AND ref_table.key_column_part2=1;
+     ```
+
+   * ref
+
+     在与前表的每个行组合中，从该表中读取具有匹配索引值的所有行。当join仅仅使用一个索引的左前缀，或者使用的索引不是一个主键，又或者不是唯一索引，`ref`就会被使用。如果使用的索引匹配的行数很少，这也不失为一个很好的join类型。
+
+     `eq_ref`可用于使用`=`或`<=>`运算符进行比较的索引列。
+
+     ```sql
+     SELECT * FROM ref_table WHERE key_column=expr;
+
+     SELECT * FROM ref_table,other_table
+       WHERE ref_table.key_column=other_table.column;
+
+     SELECT * FROM ref_table,other_table
+       WHERE ref_table.key_column_part1=other_table.column
+       AND ref_table.key_column_part2=1;
+     ```
+
+   * fulltext
+
+     使用全文索引执行join
+
+   * ref_or_null
+
+     这个join类型和`ref`有点像，但是对于包含null值行，MySQL会做一个额外的查询。这种join类型优化最常用于解析子查询。
+
+     ```sql
+     SELECT * FROM ref_table
+       WHERE key_column=expr OR key_column IS NULL;
+     ```
+
+   * index_merge
+
+     这个join类型表示使用了索引合并优化。这个时候，`key`列显示了一系列使用到的索引，`key_len`显示了使用到的索引的最长键长。
+
+   * unique_subquery
+
+     在以下形式的某些`in`子查询中，这个join类型会替代`eq_ref`。
+
+     ```sql
+     value IN (SELECT primary_key FROM single_table WHERE some_expr)
+     ```
+
+     `unique_subquery`只是一个索引查找函数，它完全替代了子查询以提高效率。
+
+   * index_subquery
+
+     这个join类型和`unique_subquery`有些类似。它在子查询中替换，但在以下形式的子查询中适用于非唯一索引:
+
+     ```sql
+     value IN (SELECT key_column FROM single_table WHERE some_expr)
+     ```
+
+   * range
+
+     当使用一个索引去选择行时只检索了给定范围的行。`key`列显示了使用了哪个索引，`key_len`显示了使用到的索引的最长键长。当join类型为range时，`ref`列值为null。
+
+     `range`可用于使用 `=, <>, >, >=, <, <=, IS NULL, <=>,BETWEEN, LIKE, IN()` 运算符和一个常量进行比较的索引列。
+
+     ```sql
+     SELECT * FROM tbl_name
+       WHERE key_column = 10;
+
+     SELECT * FROM tbl_name
+       WHERE key_column BETWEEN 10 and 20;
+
+     SELECT * FROM tbl_name
+       WHERE key_column IN (10,20,30);
+
+     SELECT * FROM tbl_name
+       WHERE key_part1 = 10 AND key_part2 IN (10,20,30)
+     ```
+
+   * index
+
+     这个join类型和ALL相似，区别是扫描了索引数。以下两种情况：
+
+     * ​
+
+   * ALL
