@@ -1,6 +1,6 @@
 # MySQL优化---EXPAIN（mysq版本5.6）
 
-​	Explain命令的作用是展示MySQL是如何执行sql语句的，SELECT, DELETE, INSERT, REPLACE,  UPDATE 语句都可以使用Explain命令。
+​	Explain命令是MySQL提供的内置命令，它的作用是向我们展示MySQL是如何执行sql语句的。SELECT, DELETE, INSERT, REPLACE,  UPDATE 语句都可以使用Explain命令。
 
 ​	EXPLAIN为SELECT语句中使用的每个table返回一行信息。它以MySQL在处理语句时的读取顺序列出所有的table。MySQL使用嵌套循环的方式解决所有的表连接（join）。这意味着MySQL从第一个table读取一行，然后在第二个table、第三个table中查找匹配的行，以此类推。当所有的table都被处理过时，MySQL会输出所选的列并在所有的table中进行反向跟踪，直到找到一个有更多匹配行的table。从该table中读取下一行，并继续处理下一个table。
 
@@ -217,3 +217,37 @@
 11. filtered
 
 12. Extra
+
+   本列展示了MySQL解析查询时一些额外的信息。下面介绍下本列可能出现的值。
+
+   * const row not found 
+   * Deleting all rows
+   * Distinct
+   * FirstMatch
+   * Full scan on NULL key
+   * Impossible HAVING
+   * Impossible WHERE
+   * Impossible WHERE noticed after reading const tables
+   * LooseScan
+   * No matching min/max row
+   * no matching row in const table
+   * No matching rows after partition pruning 
+   * No tables used
+   * Not exists 
+   * Plan isn't ready yet 
+   * Range checked for each record (index map: N)
+   * Recursive
+   * Select tables optimized away
+   * Start temporary, End temporary
+   * Using filesort
+   * Using index
+   * Using index condition
+   * Using index for group-by 
+   * Using index for skip scan
+   * Using join buffer
+   * Using MRR
+   * Using sort_union(...), Using union(...), Using intersect(...)
+   * Using where
+   * Using where with pushed condition
+   * Zero limit 
+
