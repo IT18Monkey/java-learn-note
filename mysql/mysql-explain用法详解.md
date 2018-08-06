@@ -8,22 +8,22 @@
 
 ####Explain 输出的列：
 
-| 列名          | JSON 名(FORMAT=JSON) | 含义                   |
-| ------------- | -------------------- | ---------------------- |
-| id            | select_id            | SELECT 语句的id        |
-| select_type   | 无                   | SELETE 语句的类型      |
-| table         | table_name           | 表名                   |
-| partitions    | partitions           | 分区                   |
-| type          | access_type          | join 类型              |
-| possible_keys | possible_keys        | 可供选择使用的索引     |
-| key           | key                  | 实际使用的索引         |
-| key_len       | key_length           | 实际使用索引的长度     |
-| ref           | ref                  | 列与索引的比较         |
-| rows          | rows                 | 检查的行预估值。       |
-| filtered      | filtered             | 按表条件过滤的行百分比 |
-| Extra         | 无                   | 其他信息               |
+| 列名          | JSON 名(FORMAT=JSON) | 含义                 |
+| ------------- | -------------------- | -------------------- |
+| [id](#explain_id)  | select_id            | SELECT 语句的id      |
+| [select_type](#explain_select_type) | 无                   | SELETE 语句的类型    |
+| [table](#explain_table)         | table_name           | 表名                 |
+| [partitions](#explain_partitions)    | partitions           | 分区                 |
+| [type](#explain_type)          | access_type          | join 类型            |
+| [possible_keys](#explain_possible_keys) | possible_keys        | 可供选择使用的索引   |
+| key           | key                  | 实际使用的索引       |
+| key_len       | key_length           | 实际使用索引的长度   |
+| ref           | ref                  | 与索引比较的列       |
+| rows          | rows                 | 预估检测行数         |
+| filtered      | filtered             | 依据表条件过滤行占比 |
+| Extra         | 无                   | 其他信息             |
 
-1. id
+1. <span id ='explain_id'>id</span>
 
    SELECT的标识符。这是查询中的SELECT的序号。如果行引用其他行的联合结果，则该值可以为空。举个例子，当table列显示<unionM,N>时，表示该行引用了id值为M和N的行的联合结果，这个时候id列的值就会为空。
 
@@ -37,7 +37,7 @@
 
    ![53243224326](C:\Users\wanghaohao.QingQing\Desktop\开发资料\自我\java-learn-note\pic\1532432243263.png)
 
-2. select_type
+2. <span id="explain_select_type">select_type</span>
 
    SELECT的类型，下表中展示了所有可能的值及其含义。
 
@@ -55,7 +55,7 @@
    | UNCACHEABLE SUBQUERY | cacheable (false)          | 不能缓存结果的子查询，并且必须为外部查询的每一行重新计算结果 |
    | UNCACHEABLE UNION    | cacheable (false)          | 在一个UNCACHEABLE SUBQUERY的UNION语句中第二或后面的SELECT语句 |
 
-3. table
+3. <span id="explain_table">select_type</span>
 
    输出行引用的表名，也可能是以下几种值：
 
@@ -63,11 +63,11 @@
    * `<derived*N*>`：该行引用了id值为N的行的衍生表结果。例如，衍生表可以从from语句的子查询中生成。
    * `<subquery*N*>`：该行引用了id值为N的行的实例化子查询结果。
 
-4. partitions
+4. <span id="explain_partitions">select_type</span>
 
    查询将从其中匹配记录的分区。此列仅在使用partition关键字时显示。对于非分区表，值为null。
 
-5. type
+5. <span id="explain_type">select_type</span>
 
    join类型，本列展示了表是如何join的。下面是可能的值类型，排序规则为最好到最坏。
 
