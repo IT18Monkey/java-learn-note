@@ -1,4 +1,4 @@
-# MySQL优化---EXPAIN（mysq版本5.6）
+# MySQL优化---EXPAIN（mysq版本8.0）
 
 ​	Explain命令是MySQL提供的内置命令，它的作用是向我们展示MySQL是如何执行sql语句的。SELECT, DELETE, INSERT, REPLACE,  UPDATE 语句都可以使用Explain命令。
 
@@ -16,16 +16,16 @@
 | [partitions](#explain_partitions)    | partitions           | 分区                 |
 | [type](#explain_type)          | access_type          | join 类型            |
 | [possible_keys](#explain_possible_keys) | possible_keys        | 可供选择使用的索引   |
-| key           | key                  | 实际使用的索引       |
-| key_len       | key_length           | 实际使用索引的长度   |
-| ref           | ref                  | 与索引比较的列       |
-| rows          | rows                 | 预估检测行数         |
-| filtered      | filtered             | 依据表条件过滤行占比 |
-| Extra         | 无                   | 其他信息             |
+| [key](#explain_key)           | key                  | 实际使用的索引       |
+| [key_len](#explain_key_len)       | key_length           | 实际使用索引的长度   |
+| [ref](#explain_ref)           | ref                  | 与索引比较的列       |
+| [rows](#explain_rows)          | rows                 | 预估检测行数         |
+| [filtered](#explain_filtered)          | filtered             | 依据表条件过滤行占比 |
+| [Extra](#explain_extra)          | 无                   | 其他信息             |
 
 1. <span id ='explain_id'>id</span>
 
-   SELECT的标识符。这是查询中的SELECT的序号。如果行引用其他行的联合结果，则该值可以为空。举个例子，当table列显示<unionM,N>时，表示该行引用了id值为M和N的行的联合结果，这个时候id列的值就会为空。
+   `SELECT`的标识符。这是查询中的`SELECT`的序号。如果当前行引用了其他行的联合结果，则该值为空。举个例子，当table列显示<unionM,N>时，表示该行引用了id值为M和N的行的联合结果，这个时候id列的值就会为空。
 
    如下sql：
 
@@ -46,28 +46,34 @@
    | SIMPLE               | 无                         | 简单的SELECT(没有使用UNION或者子查询)                        |
    | PRIMARY              | 无                         | 最外层的查询                                                 |
    | UNION                | 无                         | 在一个UNION中第二或后面的SELECT语句                          |
-   | DEPENDENT UNION      | dependent (true)           | 在一个UNION中第二或后面的SELECT语句，依赖于外层查询          |
+   | DEPENDENT UNION      | dependent (true)           | 在一个UNION中第二或后面的SELECT语句，并且依赖于外层查询      |
    | UNION RESULT         | union_result               | UNION的结果                                                  |
    | SUBQUERY             | 无                         | 子查询中的第一个SELECT                                       |
-   | DEPENDENT SUBQUERY   | dependent (true)           | 子查询中的第一个SELECT，依赖于外层查询                       |
-   | DERIVED              | 无                         | 衍生表（Derived table）                                      |
+   | DEPENDENT SUBQUERY   | dependent (true)           | 子查询中的第一个SELECT，并且依赖于外层查询                   |
+   | DERIVED              | 无                         | 派生表（Derived table）                                      |
    | MATERIALIZED         | materialized_from_subquery | 实例化子查询（Materialized subquery）                        |
    | UNCACHEABLE SUBQUERY | cacheable (false)          | 不能缓存结果的子查询，并且必须为外部查询的每一行重新计算结果 |
    | UNCACHEABLE UNION    | cacheable (false)          | 在一个UNCACHEABLE SUBQUERY的UNION语句中第二或后面的SELECT语句 |
 
-3. <span id="explain_table">select_type</span>
+   `DEPENDENT`通常意味着使用了关联子查询。
 
-   输出行引用的表名，也可能是以下几种值：
+   `DEPENDENT SUBQUERY ` 不同于 `UNCACHEABLE SUBQUERY` 。对于`DEPENDENT SUBQUERY`，对来自其外部上下文的每一组变量的不同值只重新计算一次子查询。对于`UNCACHEABLE SUBQUERY`，将会为外层上下文的每一行重新计算子查询。
+
+   对于非查询语句，`select_type`的值为语句类型。比如，对于一个`DELETE`语句，值为`DELETE`
+
+3. <span id="explain_table">table</span>
+
+   当前行引用的表名，除此之外也可能是以下几种值：
 
    * `<union*M*,*N*>`：该行引用了id值为M和N的行的联合结果
-   * `<derived*N*>`：该行引用了id值为N的行的衍生表结果。例如，衍生表可以从from语句的子查询中生成。
+   * `<derived*N*>`：该行引用了id值为N的行的派生表结果。例如，衍生表可以从from语句的子查询中生成。
    * `<subquery*N*>`：该行引用了id值为N的行的实例化子查询结果。
 
-4. <span id="explain_partitions">select_type</span>
+4. <span id="explain_partitions">partitions</span>
 
    查询将从其中匹配记录的分区。此列仅在使用partition关键字时显示。对于非分区表，值为null。
 
-5. <span id="explain_type">select_type</span>
+5. <span id="explain_type">type</span>
 
    join类型，本列展示了表是如何join的。下面是可能的值类型，排序规则为最好到最坏。
 
@@ -184,7 +190,7 @@
 
      为了和前表的每一行做组合而全表扫描。这种类型通常不太好，应当尽量避免。我们可以通过给表添加索引来避免这种情况。
 
-6. possible_keys
+6. <span id="explain_possible_keys">possible_keys</span>
 
    这一列显示了可供MySQL选择用来查询使用的所有索引。需要注意的是其中的一些索引在实际运行时可能不会被使用。
 
@@ -192,7 +198,7 @@
 
    想要知道表已经建立了哪些索引，可以通过`SHOW INDEX FROM table_name`查看。
 
-7. key
+7. <span id="explain_key">key</span>
 
    本列显示的MySQL实际选择使用的索引。如果本列为空，则表示MySQL没有找到索引来提升执行效率。
 
@@ -202,21 +208,21 @@
 
    我们可以通过在查询语句中使用`FORCE INDEX`, `USE INDEX`,  `IGNORE INDEX` 来强制MySQL使用或忽略`possible_keys`列中列出的索引。
 
-8. key_len
+8. <span id="explain_key_len">key_len</span>
 
    本列显示了MySQL决定使用的索引的长度。本列的值能够使你确定MySQL实际使用了复合索引的多少部分。如果`key`列的值为null，那么`key_len`列的值也为null。
 
    由于索引存储格式，一个允许空值的列，索引长度要比非空列要长。
 
-9. ref
-
-10. rows
+9. <span id="explain_rows">rows</span>
 
    本列表示MySQL认为执行查询语句时必须查找的行数。在InnoDB引擎中，这个数值是个预估值，可能会不精确。
 
-11. filtered
+10. <span id="explain_ref">ref</span> 
 
-12. Extra
+11. <span id="explain_filtered">filtered</span> 
+
+12. <span id="explain_extra">Extra</span>  
 
    本列展示了MySQL解析查询时一些额外的信息。下面介绍下本列可能出现的值。
 
