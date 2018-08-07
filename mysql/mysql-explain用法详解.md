@@ -214,14 +214,16 @@
 
    由于索引存储格式，一个允许空值的列，索引长度要比非空列要长。
 
-9. <span id="explain_rows">rows</span>
+9. <span id="explain_ref">ref</span>
 
-   本列表示MySQL认为执行查询语句时必须查找的行数。在InnoDB引擎中，这个数值是个预估值，可能会不精确。
+   本列显示了哪一列或那个常量被用来和`key`列中的索引做比较的从而从表中筛选行。
 
-10. <span id="explain_ref">ref</span> 
+   如果值为`func`,表明使用了某些函数的结果。这个函数实际上可能是一个运算符，比如算术运算符 。
 
+10. <span id="explain_rows">rows</span> 
+      本列表示MySQL认为执行查询语句时必须查找的行数。在InnoDB引擎中，这个数值是个预估值，可能会不精确。
 11. <span id="explain_filtered">filtered</span> 
-
+    本列表示将被表条件过滤的表行的估计百分比。最大值为100，这意味着没有对行进行筛选。  
 12. <span id="explain_extra">Extra</span>  
 
    本列展示了MySQL解析查询时一些额外的信息。下面介绍下本列可能出现的值。
