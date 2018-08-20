@@ -20,4 +20,6 @@
 
 [NIO入门](https://www.ibm.com/developerworks/cn/education/java/j-nio/j-nio.html)
 
+[NIO.2](https://www.ibm.com/developerworks/java/library/j-nio2-1/index.html)
+
 [高性能IO模型浅析](https://blog.csdn.net/baixiaoshi/article/details/48708347)
