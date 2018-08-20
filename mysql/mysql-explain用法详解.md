@@ -6,7 +6,7 @@
 
 ​	理解Explain输出的信息含义对SQL语句的优化有着至关重要的作用。 下面让我们详细解析下Explain命令输出的各字段的含义。
 
-####Explain 输出的列：
+#### Explain 输出的列：
 
 | 列名          | JSON 名(FORMAT=JSON) | 含义                 |
 | ------------- | -------------------- | -------------------- |
@@ -35,7 +35,7 @@
 
    执行结果：
 
-   ![53243224326](C:\Users\wanghaohao.QingQing\Desktop\开发资料\自我\java-learn-note\pic\1532432243263.png)
+   ![53243224326](../pic/1532432243263.png)
 
 2. <span id="explain_select_type">select_type</span>
 
