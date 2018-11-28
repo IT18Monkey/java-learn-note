@@ -207,7 +207,18 @@
      - 本地变量初始化。
      - 增强for循环中。
      - 传统for循环中声明的索引变量。
-     - Try-with-resources 变量。​
+     - Try-with-resources 变量。
+
+  2. `Optional`类添加了新的方法`orElseThrow`。相比于已经存在的get方法，这个方法更推荐使用。
+
+#### java11
+
+1. 支持`Unicode 10.0`,在jdk10中是8.0。
+2. 标准化HTTP Client
+3. 编译器线程的延迟分配。添加了新的命令`-XX:+UseDynamicNumberOfCompilerThreads`动态控制编译器线程的数量。
+4. 新的垃圾收集器—ZGC。一种可伸缩的低延迟垃圾收集器(实验性)。
+5. Epsilon。一款新的实验性无操作垃圾收集器。Epsilon GC 只负责内存分配，不实现任何内存回收机制。这对于性能测试非常有用，可用于与其他GC对比成本和收益。
+6. Lambda参数的局部变量语法。java10中引入的var字段得到了增强，现在可以用在lambda表达式的声明中。如果lambda表达式的其中一个形式参数使用了var，那所有的参数都必须使用var。
 
   #### 参考链接：
 
@@ -215,3 +226,4 @@
   - [What's New in JDK 8](http://www.oracle.com/technetwork/java/javase/8-whats-new-2157071.html)
   - [What’s New in JDK 9](https://docs.oracle.com/javase/9/whatsnew/toc.htm#JSNEW-GUID-C23AFD78-C777-460B-8ACE-58BE5EA681F6)
   - [JDK 10 Release Notes](http://www.oracle.com/technetwork/java/javase/10-relnote-issues-4108729.html#NewFeature)
+  - [JDK 11 Release Notes](https://www.oracle.com/technetwork/java/javase/11-relnote-issues-5012449.html#NewFeature)
