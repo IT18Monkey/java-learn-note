@@ -23,8 +23,17 @@
 #### java中的NIO
 
 1. Buffer
+
+   当我们进行数据传输时，往往需要使用数据缓冲区。java中Buffer类提供了这个功能，这是一个抽象类，实际使用中我们用它的实现类。它的实现类主要有以下几种：`IntBuffer,FloatBuffer,CharBuffer,DoubleBuffer,ShortBuffer,LongBuffer,ByteBuffer`
+
+   分别对应7种基本类型的包装类。对于NIO编程而言，我们主要使用的是ByteBuffer，下面的例子中也将使用它来演示。
+
+   学习Buffer类的使用首先需要了解三个重要的属性。position，limit，capacity。
+
 2. Channel
+
 3. Selector
+
 4. NIO.2
 
 #### Socket通信
