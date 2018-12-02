@@ -53,8 +53,6 @@
 
 #### Socket通信
 
-#### netty
-
 [NIO入门](https://www.ibm.com/developerworks/cn/education/java/j-nio/j-nio.html)
 
 [NIO.2](https://www.ibm.com/developerworks/java/library/j-nio2-1/index.html)
