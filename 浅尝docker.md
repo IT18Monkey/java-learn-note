@@ -1,12 +1,12 @@
 #### 什么是docker 
 
-​	我们先来看下官方给出的说法
+​	我们先来看下维基百科给出的说法
 
-> Package Software into Standardized Units for Development, Shipment and Deployment
+> Docker is a computer program that performs operating-system-level virtualization, also known as "containerization. It was first released in 2013 and is developed by Docker, Inc.
+>
+> Docker is used to run software packages called "containers". Containers are isolated from each other and bundle their own application, tools, libraries and configuration files; they can communicate with each other through well-defined channels. All containers are run by a single operating system kernel and are thus more lightweight than virtual machines. Containers are created from "images" that specify their precise contents. Images are often created by combining and modifying standard images downloaded from public repositories.
 
-​	docker是一个工具，一个用于软件打包的工具。那这个打包工具有什么特殊的呢，他能将运行一个应用所需要的所有东西，包括程序代码、系统工具、系统库和系统设置都打成一个包。这个包被称之为容器。
-
-我个人更倾向于将他描述为一个轻量级的虚拟机，因为它和虚拟机有着很多相似之处。
+​	简单来说，docker就是一个开源的软件工具。他能将运行一个应用所需要的所有东西，包括程序代码、系统工具、系统库和系统设置都打成一个包。这个包被称之为容器，它能运行在任何安装了docker的环境里。一次打包，到处运行，这点上有点类似jvm。你也可以理解为它是一个轻量级的虚拟机，因为它和虚拟机有着非常多的相似之处。
 
 #### docker与虚拟机的区别
 
@@ -28,7 +28,7 @@ docker和虚拟机最大的区别就是他们的隔离级别不同。虚拟机�
 
 #### 为什么要用docker
 
-作为一种新兴的虚拟化方式，Docker 跟传统的虚拟化方式相比具有众多的优势。作为一种新兴的虚拟化方式，Docker 跟传统的虚拟化方式相比具有众多的优势。
+作为一种新兴的虚拟化方式，Docker 跟传统的虚拟化方式相比具有众多的优势。
 
 - 更高效的利用系统资源
 - 更快速的启动时间
@@ -64,23 +64,38 @@ docker和虚拟机最大的区别就是他们的隔离级别不同。虚拟机�
 
    Docker Registry 分为公开和私有两种，用户可以根据自己的需要搭配使用。
 
-#### 使用docker常用命令
+#### docker常用命令
 
-* docker pull 
-  从Docker Registry获取镜像，格式：`docker pull [选项][Docker Registry 地址[:端口号]/]仓库名[:标签]`
-
-* docker run 
-
-  启动一个镜像，格式：
-
-* docker ps
-
-  查看容器
-
-* docker build
-
+1. 镜像仓库操作
+   * docker pull 
+     从Docker Registry获取镜像，格式：`docker pull [选项][Docker Registry 地址[:端口号]/]仓库名[:标签]`
+   * docker push
+   * docker search
+2. 镜像操作
+   * docker images
+   * docker run 
+   * docker rmi 
+   * docker build
+   * docker history
+3. 容器操作
+   * docker ps
+   * docker inspect
+   * docker start/stop/restart
+   * docker kill
+   * docker rm
 
 #### 深入理解docker命令
+
+> understanding how a technology works under the hood is the best way to achieve learning speed and to build confidence that you are using the tool in the correct way.
+
+1. 分层存储
+
+   因为镜像包含操作系统完整的  root  文件系统，其体积往往是庞大的，因此在Docker 设计时，就充分利用Union FS 的技术，将其设计为分层存储的架构。所以严格来说，镜像并非是像一个 ISO 那样的打包文件，镜像只是一个虚拟的概念，其实际体现并非由一个文件组成，而是由一组文件系统组成，或者说，由多层文件系
+   统联合组成。
+
+2. 
+
+
 
 当利用 `docker run` 来创建容器时，Docker 在后台运行的标准操作包括：
 
