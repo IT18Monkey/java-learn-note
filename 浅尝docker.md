@@ -1,12 +1,12 @@
 #### 什么是docker 
 
-​	我们先来看下维基百科给出的说法
+​	我们先来看下官方给出的说法
 
-> Docker is a computer program that performs operating-system-level virtualization, also known as "containerization. It was first released in 2013 and is developed by Docker, Inc.
->
-> Docker is used to run software packages called "containers". Containers are isolated from each other and bundle their own application, tools, libraries and configuration files; they can communicate with each other through well-defined channels. All containers are run by a single operating system kernel and are thus more lightweight than virtual machines. Containers are created from "images" that specify their precise contents. Images are often created by combining and modifying standard images downloaded from public repositories.
+> Package Software into Standardized Units for Development, Shipment and Deployment
 
-​	简单来说，docker就是一个开源的软件工具。他能将运行一个应用所需要的所有东西，包括程序代码、系统工具、系统库和系统设置都打成一个包。这个包被称之为容器，它能运行在任何安装了docker的环境里。一次打包，到处运行，这点上有点类似jvm。你也可以理解为它是一个轻量级的虚拟机，因为它和虚拟机有着非常多的相似之处。
+​	docker是一个工具，一个用于软件打包的工具。那这个打包工具有什么特殊的呢，他能将运行一个应用所需要的所有东西，包括程序代码、系统工具、系统库和系统设置都打成一个包。这个包被称之为容器。
+
+我个人更倾向于将他描述为一个轻量级的虚拟机，因为它和虚拟机有着很多相似之处。
 
 #### docker与虚拟机的区别
 
@@ -28,7 +28,7 @@ docker和虚拟机最大的区别就是他们的隔离级别不同。虚拟机�
 
 #### 为什么要用docker
 
-作为一种新兴的虚拟化方式，Docker 跟传统的虚拟化方式相比具有众多的优势。
+作为一种新兴的虚拟化方式，Docker 跟传统的虚拟化方式相比具有众多的优势。作为一种新兴的虚拟化方式，Docker 跟传统的虚拟化方式相比具有众多的优势。
 
 - 更高效的利用系统资源
 - 更快速的启动时间
@@ -64,100 +64,67 @@ docker和虚拟机最大的区别就是他们的隔离级别不同。虚拟机�
 
    Docker Registry 分为公开和私有两种，用户可以根据自己的需要搭配使用。
 
-#### docker常用命令
+#### 使用docker常用命令
 
-1. 镜像仓库操作
+* docker pull 
+  从Docker Registry获取镜像，格式：`docker pull [选项][Docker Registry 地址[:端口号]/]仓库名[:标签]`
 
-   * docker login/logout
+* docker run 
 
-     登陆/登出到一个Docker镜像仓库，如果未指定镜像仓库地址，默认为官方仓库 Docker Hub。
+  启动一个镜像，格式：
 
-     格式：`docker login [选项] [SERVER]` ,`docker logout [选项] [SERVER]。`
+* docker ps
 
-   * docker pull 
-     从Docker Registry获取镜像。格式：`docker pull [选项][Docker Registry 地址[:端口号]/]仓库名[:标签]。`
+  查看容器
 
-   * docker push
+* docker build
 
-     将本地的镜像上传到镜像仓库,要先登陆到镜像仓库。格式：`docker push [选项] 仓库名[:标签]`。
-
-   * docker search
-
-     从Docker Hub查找镜像。格式`docker search [选项] 关键字`。
-
-2. 镜像操作
-   * docker images
-
-     列出本地镜像。格式：`docker images [选项] [仓库名[:标签]]。`
-
-   * docker run 
-
-     创建一个新的容器并运行一个命令。格式：`docker run [选项] 镜像名[命令] [参数]。`
-
-   * docker rmi 
-
-     删除本地一个或多少镜像。格式：`docker rmi [选项] 镜像名[镜像名...]`。
-
-   * docker build
-
-     使用 Dockerfile 创建镜像。格式：`docker build [选项] 路径 | URL | -`。
-
-   * docker history
-
-     查看指定镜像的创建历史。格式：`docker history [选项] 镜像名`。
-
-3. 容器操作
-   * docker ps
-
-     列出容器。格式：`docker ps [选项]`。
-
-   * docker inspect
-
-     获取容器/镜像的元数据。`docker inspect [选项] 名称|ID`。
-
-   * docker start/stop/restart
-
-     docker start :启动一个或多个已经被停止的容器。格式：`docker start [选项] 容器名[ [容器名...]]`。
-
-     docker stop :停止一个运行中的容器。`docker stop [选项] 容器名[ [容器名...]]`。
-
-     docker restart :重启容器。`docker restart [选项] 容器名[ [容器名...]]`。
-
-   * docker kill
-
-     杀掉一个运行中的容器。`docker kill [选项] 容器名 [容器名...]`。
-
-   * docker rm
-
-     删除一个或多个容器。`docker rm [选项] 容器名[容器名...]`
-
-> 更多命令可以查看官方文档：https://docs.docker.com/engine/reference/commandline/cli/
 
 #### 深入理解docker命令
 
-> understanding how a technology works under the hood is the best way to achieve learning speed and to build confidence that you are using the tool in the correct way.
+当利用 `docker run` 来创建容器时，Docker 在后台运行的标准操作包括：
 
-1. 镜像的分层存储
+- 检查本地是否存在指定的镜像，不存在就从公有仓库下载
+- 利用镜像创建并启动一个容器
+- 分配一个文件系统，并在只读的镜像层外面挂载一层可读写层
+- 从宿主主机配置的网桥接口中桥接一个虚拟接口到容器中去
+- 从地址池配置一个 ip 地址给容器
+- 执行用户指定的应用程序
+- 执行完毕后容器被终止
 
-   因为镜像包含操作系统完整的  root  文件系统，其体积往往是庞大的，因此在Docker 设计时，就充分利用Union FS 的技术，将其设计为分层存储的架构。所以严格来说，镜像并非是像一个 ISO 那样的打包文件，镜像只是一个虚拟的概念，其实际体现并非由一个文件组成，而是由一组文件系统组成，或者说，由多层文件系
-   统联合组成。
+再看dockerfile执行过程
 
-2. 使用 Linux namespace 隔离容器的运行环境
+#### 技术要点
 
-3. 使用 cgroups 限制容器使用的资源
+1. UnionFS与镜像分层存储
 
-4. 容器与镜像的区别
+   所谓UnionFS就是把不同物理位置的目录合并mount到同一个目录中。UnionFS的一个最主要的应用是，把一张CD/DVD和一个硬盘目录给联合
+   mount在一起，然后，你就可以对这个只读的CD/DVD上的文件进行修改（当然，修改的文件存于硬盘上的目录里）。主要有以下几种实现：autfs,overlayfs。下图展示了overlayfs的基本结构
 
-   当利用 `docker run` 来创建容器时，Docker 在后台运行的标准操作包括：
+   ![overlayfs lowerdir, upperdir, merged](https://docs.docker.com/storage/storagedriver/images/overlay_constructs.jpg)
 
-    - 检查本地是否存在指定的镜像，不存在就从公有仓库下载
-    - 利用镜像创建并启动一个容器
-    - 分配一个文件系统，并在只读的镜像层外面挂载一层可读写层
-    - 从宿主主机配置的网桥接口中桥接一个虚拟接口到容器中去
-    - 从地址池配置一个 ip 地址给容器
-    - 执行用户指定的应用程序
-    - 执行完毕后容器被终止
+   其中lower dirA / lower dirB目录和upper dir目录为来自底层文件系统的不同目录，用户可以自行指定，内部包含了用户想要合并的文件和目录，merge dir目录为挂载点。当文件系统挂载后，在merge目录下将会同时看到来自各lower和upper目录下的内容，并且用户也无法（无需）感知这些文件分别哪些来自lower dir，哪些来自upper dir，用户看见的只是一个普通的文件系统根目录而已（lower dir可以有多个也可以只有一个）。
+
+   虽然overlayfs将不同的各层目录进行合并，但是upper dir和各lower dir这几个不同的目录并不完全等价，存在层次关系。首先当upper dir和lower dir两个目录存在同名文件时，lower dir的文件将会被隐藏，用户只能看见来自upper dir的文件，然后各个lower dir也存在相同的层次关系，较上层屏蔽叫下层的同名文件。除此之外，如果存在同名的目录，那就继续合并（lower dir和upper dir合并到挂载点目录其实就是合并一个典型的例子）。
+
+   各层目录中的upper dir是可读写的目录，当用户通过merge dir向时其中一个来自upper dir的文件写入数据时，那数据将直接写入upper dir下原来的文件中，删除文件也是同理；而各lower dir则是只读的，在overlayfs挂载后无论如何操作merge目录中对应来自lower dir的文件或目录，lower dir中的内容均不会发生任何的改变。既然lower dir是只读的，那当用户想要往来自lower层的文件添加或修改内容时，overlayfs首先会的拷贝一份lower dir中的文件副本到upper dir中，后续的写入和修改操作将会在upper dir下的copy-up的副本文件中进行，lower dir原文件被隐藏。
+
+   以上就是overlayfs最基本的特性，简单的总结为以下3点：（1）上下层同名目录合并；（2）上下层同名文件覆盖；（3）lower dir文件写时拷贝。这三点对用户都是不感知的。
+
+2. Linux Namespace
+
+   Linux为了提供更加精细的资源分配管理机制，给出了namespace机制解决方法。
+
+   Docker利用这一技术实现容器之间的相互隔离。
+
+3. [Linux CGroup](https://coolshell.cn/articles/17049.html)
+
+
+
+
 
 [Comparing Virtual Machines vs Docker Containers]: https://nickjanetakis.com/blog/comparing-virtual-machines-vs-docker-containers
 [Visualizing Docker Containers and Images]: http://merrigrove.blogspot.com/2015/10/visualizing-docker-containers-and-images.html
+
+[Docker 从入门到实践]: https://docker_practice.gitee.io/
 
