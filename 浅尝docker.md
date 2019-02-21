@@ -64,35 +64,64 @@ docker和虚拟机最大的区别就是他们的隔离级别不同。虚拟机�
 
    Docker Registry 分为公开和私有两种，用户可以根据自己的需要搭配使用。
 
-#### 使用docker常用命令
+#### Docker常用命令
+
+镜像仓库操作
+
+* docker login/logout
+
+  登陆/登出到一个Docker镜像仓库，如果未指定镜像仓库地址，默认为官方仓库 Docker Hub。
+
+  格式：`docker login [选项][SERVER] ,docker logout [选项][SERVER]`。
 
 * docker pull 
-  从Docker Registry获取镜像，格式：`docker pull [选项][Docker Registry 地址[:端口号]/]仓库名[:标签]`
 
-* docker run 
+  从Docker Registry获取镜像。格式：`docker pull [选项][Docker Registry 地址[:端口号]/]仓库名[:标签]`。
 
-  启动一个镜像，格式：
+* docker push
 
-* docker ps
+  将本地的镜像上传到镜像仓库,要先登陆到镜像仓库。格式：`docker push [选项] 仓库名[:标签]`。
 
-  查看容器
+* docker search
 
-* docker build
+  从Docker Hub查找镜像。格式`docker search [选项] 关键字`。
 
+镜像操作
 
-#### 深入理解docker命令
+  * docker images
 
-当利用 `docker run` 来创建容器时，Docker 在后台运行的标准操作包括：
+    列出本地镜像。格式：`docker images [选项][仓库名[:标签]]`。
 
-- 检查本地是否存在指定的镜像，不存在就从公有仓库下载
-- 利用镜像创建并启动一个容器
-- 分配一个文件系统，并在只读的镜像层外面挂载一层可读写层
-- 从宿主主机配置的网桥接口中桥接一个虚拟接口到容器中去
-- 从地址池配置一个 ip 地址给容器
-- 执行用户指定的应用程序
-- 执行完毕后容器被终止
+  * docker run 
 
-再看dockerfile执行过程
+    创建一个新的容器并运行一个命令。格式：`docker run [选项] 镜像名[命令`][参数]。
+
+  * docker rmi 
+
+    删除本地一个或多少镜像。格式：`docker rmi [选项] 镜像名[镜像名...]`。
+
+  * docker build
+
+    使用 Dockerfile 创建镜像。格式：`docker build [选项] 路径 | URL | -`。
+    
+  * docker history
+    查看指定镜像的创建历史。格式：`docker history [选项] 镜像名`。
+
+容器操作
+   * docker ps
+      列出容器。格式：`docker ps [选项]`。 
+   * docker inspect
+
+      获取容器/镜像的元数据。`docker inspect [选项] 名称|ID`。
+  
+   * docker start/stop/restart
+      docker start :启动一个或多个已经被停止的容器。格式：`docker start [选项] 容器名[ [容器名...]]`。 
+      docker stop :停止一个运行中的容器。`docker stop [选项] 容器名[ [容器名...]]`。 
+      docker restart :重启容器。`docker restart [选项] 容器名[ [容器名...]]`。 
+   * docker kill
+      杀掉一个运行中的容器。`docker kill [选项] 容器名 [容器名...]`。 
+   * docker rm
+      删除一个或多个容器。`docker rm [选项] 容器名[容器名...]`
 
 #### 技术要点
 
@@ -101,7 +130,7 @@ docker和虚拟机最大的区别就是他们的隔离级别不同。虚拟机�
    所谓UnionFS就是把不同物理位置的目录合并mount到同一个目录中。UnionFS的一个最主要的应用是，把一张CD/DVD和一个硬盘目录给联合
    mount在一起，然后，你就可以对这个只读的CD/DVD上的文件进行修改（当然，修改的文件存于硬盘上的目录里）。主要有以下几种实现：autfs,overlayfs。下图展示了overlayfs的基本结构
 
-   ![overlayfs lowerdir, upperdir, merged](https://docs.docker.com/storage/storagedriver/images/overlay_constructs.jpg)
+   ![](G:\文档\java-learn-note\pic\docker-overlay.jpg)
 
    其中lower dirA / lower dirB目录和upper dir目录为来自底层文件系统的不同目录，用户可以自行指定，内部包含了用户想要合并的文件和目录，merge dir目录为挂载点。当文件系统挂载后，在merge目录下将会同时看到来自各lower和upper目录下的内容，并且用户也无法（无需）感知这些文件分别哪些来自lower dir，哪些来自upper dir，用户看见的只是一个普通的文件系统根目录而已（lower dir可以有多个也可以只有一个）。
 
@@ -113,18 +142,18 @@ docker和虚拟机最大的区别就是他们的隔离级别不同。虚拟机�
 
 2. Linux Namespace
 
-   Linux为了提供更加精细的资源分配管理机制，给出了namespace机制解决方法。Docker利用这一技术隔离容器的运行环境。
+   为了提供更加精细的资源分配管理机制，Linux给出了namespace解决方法。Docker利用这一技术隔离容器的运行环境。
 
    linux内核实现了六种namespace。列表如下：
 
-   | namespace              | 引入的相关内核版本                                           | 被隔离的全局系统资源                                         | 在容器语境下的隔离效果                                       |
-   | ---------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-   | **Mount namespaces**   | [Linux 2.4.19](http://lwn.net/2001/0301/a/namespaces.php3)   | 文件系统挂接点                                               | 每个容器能看到不同的文件系统层次结构                         |
-   | **UTS namespaces**     | [Linux 2.6.19](http://lwn.net/Articles/179345/)              | nodename 和 domainname                                       | 每个容器可以有自己的 hostname 和 domainame                   |
-   | **IPC namespaces**     | [Linux 2.6.19](http://lwn.net/Articles/187274/)              | 特定的进程间通信资源，包括[System V IPC](http://www.kernel.org/doc/man-pages/online/pages/man7/svipc.7.html) 和  [POSIX message queues](http://www.kernel.org/doc/man-pages/online/pages/man7/mq_overview.7.html) | 每个容器有其自己的 System V IPC 和 POSIX 消息队列文件系统，因此，只有在同一个 IPC namespace 的进程之间才能互相通信 |
-   | **PID namespaces**     | [Linux 2.6.24](http://lwn.net/Articles/259217/)              | 进程 ID 数字空间 （process ID number space）                 | 每个 PID namespace 中的进程可以有其独立的 PID；  每个容器可以有其 PID 为 1 的root 进程；也使得容器可以在不同的 host 之间迁移，因为 namespace 中的进程 ID 和  host 无关了。这也使得容器中的每个进程有两个PID：容器中的 PID 和 host 上的 PID。 |
-   | **Network namespaces** | [始于Linux 2.6.24 完成于 Linux 2.6.29](http://lwn.net/Articles/219794/) | 网络相关的系统资源                                           | 每个容器用有其独立的网络设备，IP 地址，IP 路由表，/proc/net 目录，端口号等等。这也使得一个 host 上多个容器内的同一个应用都绑定到各自容器的 80 端口上。 |
-   | **User namespaces**    | [始于 Linux 2.6.23 完成于 Linux 3.8)](http://lwn.net/Articles/528078/) | 用户和组 ID 空间                                             | 在 user namespace 中的进程的用户和组 ID 可以和在 host 上不同； 每个 container 可以有不同的 user 和 group id；一个 host 上的非特权用户可以成为 user namespace 中的特权用户； |
+   | namespace              | 引入的相关内核版本                   | 被隔离的全局系统资源                                         | 在容器语境下的隔离效果                                       |
+   | ---------------------- | ------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+   | **Mount namespaces**   | Linux 2.4.19                         | 文件系统挂接点                                               | 每个容器能看到不同的文件系统层次结构                         |
+   | **UTS namespaces**     | Linux 2.6.19                         | nodename 和 domainname                                       | 每个容器可以有自己的 hostname 和 domainame                   |
+   | **IPC namespaces**     | Linux 2.6.19                         | 特定的进程间通信资源，包括System V IPC和 POSIX message queues | 每个容器有其自己的 System V IPC 和 POSIX 消息队列文件系统，因此，只有在同一个 IPC namespace 的进程之间才能互相通信 |
+   | **PID namespaces**     | Linux 2.6.24                         | 进程 ID 数字空间 （process ID number space）                 | 每个 PID namespace 中的进程可以有其独立的 PID；  每个容器可以有其 PID 为 1 的root 进程；也使得容器可以在不同的 host 之间迁移，因为 namespace 中的进程 ID 和  host 无关了。这也使得容器中的每个进程有两个PID：容器中的 PID 和 host 上的 PID。 |
+   | **Network namespaces** | 始于Linux 2.6.24 完成于 Linux 2.6.29 | 网络相关的系统资源                                           | 每个容器用有其独立的网络设备，IP 地址，IP 路由表，/proc/net 目录，端口号等等。这也使得一个 host 上多个容器内的同一个应用都绑定到各自容器的 80 端口上。 |
+   | **User namespaces**    | 始于 Linux 2.6.23 完成于 Linux 3.8)  | 用户和组 ID 空间                                             | 在 user namespace 中的进程的用户和组 ID 可以和在 host 上不同； 每个 container 可以有不同的 user 和 group id；一个 host 上的非特权用户可以成为 user namespace 中的特权用户； |
 
    Linux namespace 的概念说简单也简单说复杂也复杂。简单来说，我们只要知道，处于某个 namespace 
    中的进程，能看到独立的它自己的隔离的某些特定系统资源；复杂来说，可以去看看 Linux 内核中实现 namespace 的原理。
@@ -133,8 +162,40 @@ docker和虚拟机最大的区别就是他们的隔离级别不同。虚拟机�
 
    Docker 容器使用 linux namespace 来隔离其运行环境，使得容器中的进程看起来就像爱一个独立环境中运行一样。但是，光有运行环境隔离还不够，因为这些进程还是可以不受限制地使用系统资源，比如网络、磁盘、CPU以及内存等。关于其目的，一方面，是为了防止它占用了太多的资源而影响到其它进程；另一方面，在系统资源耗尽的时候，linux 内核会触发 OOM，这会让一些被杀掉的进程成了无辜的替死鬼。因此，为了让容器中的进程更加可控，Docker 使用 Linux cgroups 来限制容器中的进程允许使用的系统资源。 
 
+   目前 docker 已经几乎支持了所有的 cgroups 资源，可以限制容器对包括 network，device，cpu 和 memory 在内的资源的使用
+
+   我们可以通过给docker run 命令传参来控制分配容器的资源。Docker run 命令中 cgroups 相关命令如下：
+
+   ````
+   block IO:
+   --blkio-weight value          Block IO (relative weight), between 10 and 1000
+   --blkio-weight-device value   Block IO weight (relative device weight) (default [])
+   --cgroup-parent string        Optional parent cgroup for the container
+   CPU:
+   --cpu-percent int             CPU percent (Windows only)
+   --cpu-period int              Limit CPU CFS (Completely Fair Scheduler)period
+   --cpu-quota int               Limit CPU CFS (Completely Fair Scheduler) quota
+   -c, --cpu-shares int          CPU shares (relative weight)
+   --cpuset-cpus string          CPUs in which to allow execution (0-3, 0,1)
+   --cpuset-mems string          MEMs in which to allow execution (0-3, 0,1)
+   Device:    
+   --device		              Add a host device to the container
+   --device-cgroup-rule		  Add a rule to the cgroup allowed devices list
+   --device-read-bps			  Limit read rate (bytes per second) from a device
+   --device-read-iops			  Limit read rate (IO per second) from a device
+   --device-write-bps		 	  Limit write rate (bytes per second) to a device
+   --device-write-iops			  Limit write rate (IO per second) to a device
+   Memory:      
+   --kernel-memory string        Kernel memory limit
+   --memory , -m		          Memory limit
+   --memory-reservation		  Memory soft limit
+   --memory-swap				  Swap limit equal to memory plus swap: ‘-1’ to enable                     			 unlimited swap
+   --memory-swappiness           Tune container memory swappiness (0 to 100)
+   ````
+
+
 [Comparing Virtual Machines vs Docker Containers]: https://nickjanetakis.com/blog/comparing-virtual-machines-vs-docker-containers
 [Visualizing Docker Containers and Images]: http://merrigrove.blogspot.com/2015/10/visualizing-docker-containers-and-images.html
-[Docker 使用 Linux namespace 隔离容器的运行环境]: https://docker_practice.gitee.io/
+[Docker 使用 Linux namespace 隔离容器的运行环境]: http://www.cnblogs.com/sammyliu/p/5878973.html
 [Docker 从入门到实践]: https://docker_practice.gitee.io/
 
