@@ -31,7 +31,12 @@ Java 并发
 2、volatile 的实现原理？ 
 3、Java 的信号灯？
 	Semaphore
-4、synchronized 在静态方法和普通方法的区别？ 5、怎么实现所有线程在等待某个事件的发生才会去执行？ 6、CAS？CAS 有什么缺陷，如何解决？ 7、synchronized 和 lock 有什么区别？ 8、Hashtable 是怎么加锁的 ？ 9、HashMap 的并发问题？ 10、ConcurrenHashMap 介绍？1.8 中为什么要用红黑树？ 11、AQS 12、如何检测死锁？怎么预防死锁？ 13、Java 内存模型？ 14、如何保证多线程下 i++ 结果正确？ 15、线程池的种类，区别和使用场景？ 16、分析线程池的实现原理和线程的调度过程？ 17、线程池如何调优，最大数目如何确认？ 18、ThreadLocal原理，用的时候需要注意什么？ 
+4、synchronized 在静态方法和普通方法的区别？
+    锁对象的不同
+5、怎么实现所有线程在等待某个事件的发生才会去执行？
+    countdownlatch和cyclicbarrier。
+6、Java技术之AQS详解 https://www.jianshu.com/p/da9d051dcc3d
+6、CAS？CAS 有什么缺陷，如何解决？ 7、synchronized 和 lock 有什么区别？ 8、Hashtable 是怎么加锁的 ？ 10、ConcurrenHashMap 介绍？1.8 中为什么要用红黑树？ 11、AQS 12、如何检测死锁？怎么预防死锁？ 13、Java 内存模型？ 14、如何保证多线程下 i++ 结果正确？ 15、线程池的种类，区别和使用场景？ 16、分析线程池的实现原理和线程的调度过程？ 17、线程池如何调优，最大数目如何确认？ 18、ThreadLocal原理，用的时候需要注意什么？ 
 
 Spring
 
